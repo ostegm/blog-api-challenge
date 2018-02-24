@@ -1,0 +1,23 @@
+{
+  "name": "blog-api-challenge",
+  "version": "1.0.0",
+  "description": "Challenge problem for thinkful course.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ostegm/blog-api-challenge.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ostegm/blog-api-challenge/issues"
+  },
+  "homepage": "https://github.com/ostegm/blog-api-challenge#readme",
+  "dependencies": {
+    "express": "^4.16.2",
+    "uuid": "^3.2.1"
+  }
+}
