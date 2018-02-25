@@ -1,2 +1,9 @@
 language: node_js
 node_js: node
+deploy:
+  provider: heroku
+  api_key:
+    secure: pHYqI3up3+uq8NgICgGG68aaypGQzgJ/7BmJ0pCeoWesI/JTmDoybrs2yRuIwv4/siC+IkjOBbs1OP1YmDOxpUWzUu5w6UmOHGgPwTzM37ItKAgNIGiBA6u64Ust8SIEZ4kXz5qwKBPaDmjPbeAF4f4+EqFt1PGnEjMBX0zm0TCke7r8nQ4MO3Te121oYZW8/Vl7WdIj94D7485Cwx0Ec7lYVku0WBumA7QozvFBCbRQaGbcBfXnuxmx2b5QtVmrOYjiIcRVbIRpaxBs512INprZch8LJIWpI6WsiYxWUScKZgvF+OHgkTGMG+obie9DGc6RyWqQ0Q0xLhAjDuUfaqZNwyk5l8tkNrMSTV2AXWHK26w5Chs20PiMEqVgleXtgY/kcua+warp6yJKLD2jpJOEKd8nPSFf4V2vdroGUv7O66xHpgmAcY9z0Z0mH+qKotWIzfC5d8aG3jjHAwTkxbu1QkOlYOp/b4RaCvXvB0ixqDg/wzVAVzsfjP4M9d4wCc0nYRKWyHEArV4/UL+5A+NbRr6Si2mF6BavwY6CN3mimla6RJrebwXwO8LOkbDrx1iEZtMZmF7cdIK7tSp1gsS2xfRcusctvrRUzlO/77w/emhV34EDLyp2crLLR9Zp5o32QMs/wd0s2EJD70ZyKnVEid+I5zQ8CKaQXcD9PNs=
+  app: shielded-oasis-92196
+  on:
+    repo: ostegm/blog-api-challenge
