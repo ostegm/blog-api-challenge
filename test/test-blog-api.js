@@ -1,18 +1,19 @@
 const chai = require('chai');
 const chaiHttp = require('chai-http');
 const expect = chai.expect;
+const {PORT, TEST_DATABASE_URL} = require('../config')
 const {app, runServer, closeServer} = require('../server')
 
 chai.use(chaiHttp);
 
 describe('blog post api tests', function() {
   before(function() {
-    return runServer();
+    return runServer(TEST_DATABASE_URL, PORT);
   });
   after( function() {
     return closeServer();
   });
-  it('Should like content on GET', function() {
+  it('Should list content on GET', function() {
     return chai.request(app)
       .get('/blog-posts')
       .then(function(res) {
@@ -20,7 +21,7 @@ describe('blog post api tests', function() {
         expect(res).to.be.json;
         expect(res.body).to.be.a('array');
         expect(res.body.length).to.be.at.least(1);
-        const expectedKeys = ['id', 'title', 'content', 'author', 'publishDate'];
+        const expectedKeys = ['id', 'title', 'content', 'author'];
         res.body.forEach(function(item) {
           expect(item).to.be.a('object');
           expect(item).to.include.keys(expectedKeys);

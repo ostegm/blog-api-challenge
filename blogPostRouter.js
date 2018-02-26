@@ -5,14 +5,17 @@ const router = express.Router();
 const jsonParser = bodyParser.json();
 const {BlogPosts} = require('./models');
 
-// Add a few test Posts.
-BlogPosts.create('A new hope', 'Some content', 'Luke SkyWalker', '1974');
-BlogPosts.create('Return of the Jedi', 'Other content', 'Yoda', '1975');
-
 
 router.get('/', (req, res) => {
-  res.json(BlogPosts.get())
-})
+  BlogPosts.find()
+    .then(posts => {
+      res.json(posts.map(post => post.serialize()))
+    })
+    .catch(err => {
+      console.error(err);
+      res.status(500).json({ message: 'Internal server error' });
+    });
+});
 
 router.post('/', jsonParser, (req, res) => {
   const requiredFields = ['title', 'content', 'author']
