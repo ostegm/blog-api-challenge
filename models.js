@@ -1,22 +1,22 @@
 'use strict'
 
 const mongoose = require('mongoose');
+mongoose.Promise = global.Promise;
 
 
 const blogPostsSchema = mongoose.Schema({
-  title: {type: String, required: true},
   author: {
-    firstName: {type: String, required: true},
-    lastName: {type: String, required: true},
+    firstName: String,
+    lastName: String
   },
-  content: {type: String, required: true},
-  publishDate: {type: String}
-})
+  title: {type: String, required: true},
+  content: {type: String},
+  publishDate: {type: Date, default: Date.now}
+});
 
 blogPostsSchema.virtual('authorFullName').get(function() {
   return `${this.author.firstName} ${this.author.lastName}`.trim();
 })
-
 
 blogPostsSchema.methods.serialize = function() {
   return {
