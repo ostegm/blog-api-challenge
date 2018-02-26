@@ -29,6 +29,21 @@ describe('blog post api tests', function() {
       });
   });
 
+  it('Should find by ID on GET', function() {
+    return chai.request(app)
+      .get('/blog-posts')
+      .then(function(res) {
+        const id = res.body[0].id
+        return chai.request(app)
+          .get(`/blog-posts/${id}`)
+          .then(function(res) {
+            expect(res).to.have.status(200)
+            expect(res).to.be.json;
+            expect(res.body).to.be.a('object');
+          })
+      });
+  });
+
   it('should add an item on POST', function() {
     const newItem = {
       content: 'test',
