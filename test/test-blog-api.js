@@ -1,18 +1,76 @@
+'use strict';
 const chai = require('chai');
 const chaiHttp = require('chai-http');
-const expect = chai.expect;
+const faker = require('faker');
+const mongoose = require('mongoose');
+const { BlogPosts } = require('../models');
 const {PORT, TEST_DATABASE_URL} = require('../config')
 const {app, runServer, closeServer} = require('../server')
 
+const expect = chai.expect;
+const should = chai.should();
 chai.use(chaiHttp);
 
+
+
+// this function deletes the entire database.
+// we'll call it in an `afterEach` block below
+// to ensure  ata from one test does not stick
+// around for next one
+function tearDownDb() {
+  return new Promise((resolve, reject) => {
+    console.warn('Deleting database');
+    BlogPosts.deleteMany({})
+      .then(result => resolve(result))
+      .catch(err => reject(err));
+  });
+}
+
+
+// used to put randomish documents in db
+// so we have data to work with and assert about.
+// we use the Faker library to automatically
+// generate placeholder values for author, title, content
+// and then we insert that data into mongo
+function seedBlogPostData() {
+  console.info('seeding blog post data');
+  const seedData = [];
+  for (let i = 1; i <= 10; i++) {
+    seedData.push({
+      author: {
+        firstName: faker.name.firstName(),
+        lastName: faker.name.lastName()
+      },
+      title: faker.lorem.sentence(),
+      content: faker.lorem.text()
+    });
+  }
+  // this will return a promise
+  return BlogPosts.insertMany(seedData);
+}
+
+
 describe('blog post api tests', function() {
+  
   before(function() {
     return runServer(TEST_DATABASE_URL, PORT);
   });
+
   after( function() {
     return closeServer();
   });
+
+  beforeEach(function () {
+    return seedBlogPostData();
+  });
+
+  afterEach(function () {
+    // tear down database so we ensure no state from this test
+    // effects any coming after.
+    return tearDownDb();
+  });
+
+
   it('Should list content on GET', function() {
     return chai.request(app)
       .get('/blog-posts')
