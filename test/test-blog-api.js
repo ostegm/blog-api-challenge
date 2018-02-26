@@ -8,7 +8,7 @@ const {PORT, TEST_DATABASE_URL} = require('../config')
 const {app, runServer, closeServer} = require('../server')
 
 const expect = chai.expect;
-const should = chai.should();
+// const should = chai.should();
 chai.use(chaiHttp);
 
 
@@ -72,9 +72,11 @@ describe('blog post api tests', function() {
 
 
   it('Should list content on GET', function() {
+    let res;
     return chai.request(app)
       .get('/blog-posts')
-      .then(function(res) {
+      .then(function(_res) {
+        res = _res; //for future then blocs.
         expect(res).to.have.status(200);
         expect(res).to.be.json;
         expect(res.body).to.be.a('array');
@@ -83,22 +85,33 @@ describe('blog post api tests', function() {
         res.body.forEach(function(item) {
           expect(item).to.be.a('object');
           expect(item).to.include.keys(expectedKeys);
-        });
+        })
+      return BlogPosts.count();
+      }).then(function(count) {
+          expect(res.body.length === count).to.be.true;
       });
   });
 
   it('Should find by ID on GET', function() {
+    let res, id;
     return chai.request(app)
       .get('/blog-posts')
-      .then(function(res) {
-        const id = res.body[0].id
+      .then(function(_res) {
+        id = _res.body[0].id
         return chai.request(app)
           .get(`/blog-posts/${id}`)
-          .then(function(res) {
+          .then(function(_res) {
+            res = _res
             expect(res).to.have.status(200)
             expect(res).to.be.json;
             expect(res.body).to.be.a('object');
-          })
+            return BlogPosts.findById(id)
+          }).then( function (expectedPost) {
+            const keysToCheck = ['id', 'title', 'content']
+            keysToCheck.map(function(key) {
+              expect(res.body[key]).to.equal(expectedPost[key]);
+            })
+          });
       });
   });
 
@@ -108,18 +121,17 @@ describe('blog post api tests', function() {
       title: 'test',
       author: 'test',
     };
+    const originalLength = BlogPosts.count();
     return chai.request(app)
       .post('/blog-posts')
       .send(newItem)
       .then(function(res) {
-        const expectedKeys = ['id', 'title', 'content', 'author'];
         expect(res).to.have.status(201);
-        // expect(res).to.be.json;
-        // expect(res.body).to.be.a('object');
-        // expect(res.body).to.include.keys(expectedKeys);
-        // expect(res.body.id).to.not.equal(null);
-        // expect(res.body).to.deep.equal(Object.assign(newItem, {id: res.body.id}));
-      });
+        expect(res.body.content).to.equal(newItem.content);
+      return (BlogPosts.findById(res.body.id));
+      }).then(function(foundItem) {
+          expect(foundItem.content).to.equal(newItem.content);
+      });;
   });
 
   it('should update items on PUT', function() {
@@ -139,6 +151,9 @@ describe('blog post api tests', function() {
       })
       .then(function(res) {
         expect(res).to.have.status(204);
+        return BlogPosts.findById(updateData.id);
+      }).then(function(foundItem) {
+        expect(foundItem.title).to.equal(updateData.title);
       });
   });
 
