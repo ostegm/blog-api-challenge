@@ -1,6 +1,10 @@
 const express = require('express');
 const morgan = require('morgan');
 const blogPostRouter = require('./blogPostRouter');
+const {PORT, DATABASE_URL} = require('./config')
+const mongoose = require('mongoose');
+mongoose.Promise = global.Promise;
+
 
 function logErrors(err, req, res, next) {
   console.error(err);
@@ -17,28 +21,34 @@ app.use(logErrors);
 
 //common server object for run/close server ops.
 let server;
-function runServer() {
-  const PORT = (process.env.PORT || 8080)
+function runServer(databaseUrl, port) {
   return new Promise((resolve, reject) => {
-    server = app.listen(PORT, () => {
-      console.log(`App listening on port ${PORT}`);
+    mongoose.connect(databaseUrl, {}, err => {
+      if (err) {
+        return reject(err);
+      }
+    })
+    server = app.listen(port, () => {
+      console.log(`App listening on port ${port}`);
       resolve(server);
     }).on('error', err => {
+      mongoose.disconnect()
       reject(err)
     });  
   });
 }
   
 function closeServer() {
-  return new Promise((resolve, reject) => {
-    console.log('Closing server');
-    server.close(err => {
-      if (err) {
-        reject(err);
-        // so we don't also call `resolve()`
-        return;
-      }
-      resolve();
+  return mongoose.disconnect().then(() => {
+    return new Promise((resolve, reject) => {
+      console.log('Closing server');
+      mongoose.disconnect();
+      server.close(err => {
+        if (err) {
+          return reject(err);
+        }
+        resolve();
+      });
     });
   });
 }
@@ -46,7 +56,7 @@ function closeServer() {
 // if server.js is called directly (aka, with `node server.js`), this block
 // runs. but we also export the runServer command so other code (for instance, test code) can start the server as needed.
 if (require.main === module) {
-  runServer().catch(err => console.error(err));
+  runServer(DATABASE_URL, PORT).catch(err => console.error(err));
 };
 
 module.exports = {app, runServer, closeServer};
